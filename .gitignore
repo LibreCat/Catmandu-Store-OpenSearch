@@ -1,0 +1,16 @@
+!.gitignore
+.DS_Store
+*.swp
+.build
+_build
+blib
+Build
+LICENSE
+Makefile.PL
+MANIFEST*
+META.*
+MYMETA.*
+local
+Catmandu-Store-OpenSearch-*
+cpanfile.snapshot
+.tidyall.d
