@@ -196,7 +196,7 @@ sub delete_by_query ($self, %args) {
     $self->flush();
 
     my $url = $self->store->hosts->[0] . "/" . $self->index . "/_delete_by_query";
-    my $res = $self->store->os->base->ua->post(
+    my $res = $self->store->os->_base->ua->post(
         $url => "json" => {query => $args{query}}
     )->result;
     if ($res->code ne "200") {
