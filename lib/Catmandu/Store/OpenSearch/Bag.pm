@@ -184,8 +184,8 @@ sub delete ($self, $id) {
     $self->_bulk->delete(id => $id);
 }
 
-# TODO: flush bulk buffer
 sub delete_all ($self) {
+    $self->flush();
     $self->delete_by_query(query => {
         match_all => {}
     });
