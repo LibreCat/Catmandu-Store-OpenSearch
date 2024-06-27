@@ -3,8 +3,10 @@ package Catmandu::Store::OpenSearch;
 our $VERSION = '0.01';
 
 use Catmandu::Sane;
-use Catmandu::Util qw(:check :is);
+use Catmandu::Util qw(:is);
 use Catmandu::Store::OpenSearch::Bag;
+use Types::Standard qw(ArrayRef Str);
+use Types::Common::String qw(NonEmptyStr);
 use Moo;
 use OpenSearch;
 use namespace::clean;
@@ -13,22 +15,18 @@ with 'Catmandu::Store';
 
 has hosts => (
     is => 'lazy',
-    isa => sub {
-        my $v = $_[0];
-        check_array_ref($v);
-        check_string($_) for @$v;
-    },
+    isa => ArrayRef[NonEmptyStr],
     default => sub {["localhost:9200"]}
 );
 
 has user => (
     is => 'ro',
-    isa => sub { check_string($_[0]); },
+    isa => Str,
 );
 
 has pass => (
     is => 'ro',
-    isa => sub { check_string($_[0]); },
+    isa => Str,
 );
 
 

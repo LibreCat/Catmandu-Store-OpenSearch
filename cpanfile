@@ -6,3 +6,5 @@ requires 'CQL::Parser', '>=1.12';
 requires 'Moo', '>=1.004006';
 requires 'namespace::clean', '>=0.24';
 requires 'OpenSearch', '0.92';
+
+recommends 'Type::Tiny::XS';

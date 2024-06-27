@@ -5,17 +5,18 @@ our $VERSION = '0.01';
 use Catmandu::Sane;
 use Moo;
 use Cpanel::JSON::XS qw(encode_json);
+use Types::Standard qw(Int HashRef InstanceOf);
 use namespace::clean;
 use feature qw(signatures);
 no warnings qw(experimental::signatures);
 
 with 'Catmandu::Iterable';
 
-has bag   => (is => 'ro', required => 1);
-has query => (is => 'ro', required => 1);
-has start => (is => 'ro', required => 1);
-has limit => (is => 'ro', required => 1);
-has total => (is => 'ro');
+has bag   => (is => 'ro', isa => InstanceOf['Catmandu::Store::OpenSearch::Bag'], required => 1);
+has query => (is => 'ro', isa => HashRef, required => 1);
+has start => (is => 'ro', isa => Int, required => 1);
+has limit => (is => 'ro', isa => Int, required => 1);
+has total => (is => 'ro', isa => Int);
 has sort  => (is => 'lazy');
 
 sub _build_sort {

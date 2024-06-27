@@ -7,13 +7,15 @@ our $VERSION = '0.01';
 use Catmandu::Util qw(require_package trim);
 use CQL::Parser;
 use Moo;
+use Types::Standard qw(HashRef);
+use Types::Common::String qw(NonEmptyStr);
 use namespace::clean;
 use feature qw(signatures);
 no warnings qw(experimental::signatures);
 
-has parser  => (is => 'ro', lazy     => 1, builder => '_build_parser');
-has mapping => (is => 'ro', required => 1);
-has id_key  => (is => 'ro', required => 1);
+has parser  => (is => 'lazy', init_arg => undef);
+has mapping => (is => 'ro', isa => HashRef, required => 1);
+has id_key  => (is => 'ro', isa => NonEmptyStr, required => 1);
 
 my $RE_ANY_FIELD         = qr'^(srw|cql)\.(serverChoice|anywhere)$'i;
 my $RE_MATCH_ALL         = qr'^(srw|cql)\.allRecords$'i;
