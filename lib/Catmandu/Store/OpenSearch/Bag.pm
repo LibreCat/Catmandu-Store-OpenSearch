@@ -118,25 +118,23 @@ sub generator ($self) {
     sub {
         state $search_after;
         state $docs = [];
+        state $batch_size = $self->default_limit;
 
         unless (scalar(@$docs)) {
             my %args = (
                 index => $self->index,
                 query => {match_all => {}},
-                from  => 0,
-                size  => 100, # TODO: make configurable
+                size  => $batch_size,
                 sort  => [{
                     _id => {order => "asc"}
                 }],
-                track_total_hits => "true",
+                track_total_hits => "false",
             );
             $args{search_after} = $search_after if $search_after;
             my $res = $self->store->os->search->search(%args);
             if ($res->code ne "200") {
                 Catmandu::Error->throw(encode_json($res->error));
             }
-            my $total = $res->data->{hits}{total}{value};
-            return unless $total;
 
             $docs     = $res->data->{hits}{hits};
             return unless scalar(@$docs);
