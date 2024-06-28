@@ -34,7 +34,5 @@ jobs:
         uses: ankane/setup-opensearch@v1
         with:
           opensearch-version: 2
-          config: |
-            plugins.security.disabled: true
       - name: Run test
         run: prove -lr t
