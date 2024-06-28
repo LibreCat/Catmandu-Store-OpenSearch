@@ -45,6 +45,6 @@ search:
                             term_vector: with_positions_offsets
                             copy_to: all
                             fields:
-                            exact: {type: keyword, normalizer: tag}
+                                exact: {type: keyword, normalizer: tag}
                         type: {type: keyword}
                         year: {type: date, format: 8year, copy_to: all}
