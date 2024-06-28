@@ -8,3 +8,8 @@ requires 'namespace::clean', '>=0.24';
 requires 'OpenSearch', '==0.94';
 
 recommends 'Type::Tiny::XS';
+
+on 'test' => sub {
+    requires 'Test::More', '0.98';
+    requires 'Test::Pod::Coverage';
+};
