@@ -28,7 +28,7 @@ sub _build_parser {
 sub parse ($self, $query) {
     my $node = eval {$self->parser->parse($query);} or do {
         my $error = $@;
-        die "cql error: $error";
+        die("cql error: $error");
     };
     $self->parse_node($node);
 }
@@ -36,10 +36,12 @@ sub parse ($self, $query) {
 sub parse_node ($self, $node) {
     my $query = {};
 
-    unless ($node->isa('CQL::BooleanNode')) {
-        $node->isa('CQL::TermNode')
-            ? $self->_parse_term_node($node, $query)
-            : $self->_parse_prox_node($node, $query);
+    if ($node->isa('CQL::TermNode')) {
+        $self->_parse_term_node($node, $query);
+        return $query;
+    }
+    elsif ($node->isa('CQL::ProxNode')) {
+        $self->_parse_prox_node($node, $query);
         return $query;
     }
 
@@ -50,7 +52,10 @@ sub parse_node ($self, $node) {
         $node = shift @stack;
         $q    = shift @query_stack;
 
-        if ($node->isa('CQL::BooleanNode')) {
+        if ($node->isa('CQL::ProxNode')) { # CQL::ProxNode is a subclass of CQL::BooleanNode
+            $self->_parse_prox_node($node, $q);
+        }
+        elsif ($node->isa('CQL::BooleanNode')) {
             push @stack, $node->left, $node->right;
             push @query_stack, my $left = {}, my $right = {};
             if ($node->op eq 'and') {
@@ -60,15 +65,14 @@ sub parse_node ($self, $node) {
                 $q->{bool} = {should => [$left, $right]};
             }
             else {
-                $q->{bool}
-                    = {must => [$left, {bool => {must_not => [$right]}}]};
+                $q->{bool} = {must => [$left, {bool => {must_not => [$right]}}]};
             }
         }
         elsif ($node->isa('CQL::TermNode')) {
             $self->_parse_term_node($node, $q);
         }
         else {
-            $self->_parse_prox_node($node, $q);
+            Catmandu::Error->throw('cql error: unable to map node of class '.ref($node));
         }
     }
 
@@ -79,7 +83,8 @@ sub _parse_term_node ($self, $node, $query) {
     my $term = $node->getTerm;
 
     if ($term =~ $RE_MATCH_ALL) {
-        return {match_all => {}};
+        $query->{match_all} = {};
+        return $query;
     }
 
     my $qualifier = $node->getQualifier;
@@ -173,9 +178,14 @@ sub _parse_prox_node ($self, $node, $query) {
         $slop = $n - 1 if $n > 1;
     }
     if ($qualifier =~ $RE_ANY_FIELD) {
-        $qualifier = '_all';
+        if ($self->mapping and my $idx = $self->mapping->{default_index}) {
+            $qualifier = $idx;
+        }
+        else {
+            $qualifier = '_all';
+        }
     }
-
+    
     $query->{match_phrase} = {$qualifier => {query => $term, slop => $slop}};
 }
 
@@ -336,7 +346,7 @@ sub _term_node ($self, $base, $qualifier, $term, @modifiers) {
         }
     }
     elsif ($base eq 'all') {
-        $term = [split /\s+/, trim($term)];
+        $term = [split /\s+/o, trim($term)];
         if (ref $qualifier) {
             return {
                 bool => {
@@ -441,7 +451,7 @@ sub _text_node ($self, $qualifier, $term, @modifiers) {
             };
         }
     }
-    if ($term =~ /\s/) {
+    if ($term =~ /\s/o) {
         return {match_phrase => {$qualifier => {query => $term}}};
     }
     {match => {$qualifier => {query => $term}}};

@@ -1,0 +1,21 @@
+---
+_id: "0001"
+title: "κατὰ Τιμάρχου"
+type: "book"
+language: "grc"
+year: -400
+...
+---
+_id: "0002"
+title: "Against Timarchus"
+type: "book"
+language: "eng"
+year: 2024
+...
+---
+_id: "0003"
+title: "Plasmonic semiconductors : materials, tunability and applications"
+type: "journal_article"
+language: "eng"
+year: 2023
+...
