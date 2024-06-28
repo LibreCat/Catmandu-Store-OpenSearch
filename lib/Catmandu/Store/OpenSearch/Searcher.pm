@@ -73,26 +73,35 @@ sub generator ($self) {
     };
 }
 
-sub slice ($self, $start, $total) {
+sub slice {
+    my ($self, $start, $total) = @_;
     $start //= 0;
-    $self->new(
+    my %args = (
         bag   => $self->bag,
         query => $self->query,
         start => $self->start + $start,
         limit => $self->limit,
-        total => $total,
         sort  => $self->sort,
     );
+    $args{total} = $total if defined($total);
+    $self->new(%args);
 }
 
 sub count ($self) {
     my $bag    = $self->bag;
     my $store  = $bag->store;
-    my $res    = $store->os->count(index => $bag->index, query => $self->query);
+    my $res    = $store->os->search->count(index => $bag->index, query => $self->query);
     if ($res->code ne "200") {
         Catmandu::Error->throw(encode_json($res->error));
     }
-    $res->data->{count};
+    
+    my $count = $res->data->{count};
+    $count   -= $self->start;
+    my $total = $self->total;
+    if (defined($total)) {
+        $count = $count > $total ? $total : $count;
+    }
+    $count;
 }
 
 1;
