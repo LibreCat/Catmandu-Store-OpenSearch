@@ -258,7 +258,6 @@ sub search ($self, %args) {
     for my $key (qw(aggregations)) {
         $hits->{$key} = $res->{$key} if exists $res->{$key};
     }
-    # TODO: highlight not yet supported by OpenSearch client
     if ($args{highlight}) {
         for my $doc (@$docs) {
             if (my $hl = $doc->{highlight}) {
@@ -355,8 +354,8 @@ has 'max_count'     => (is => 'rw', default  => 1_000);
 has 'on_error'      => (is => 'ro');
 has 'on_success'    => (is => 'ro');
 
-has '_buffer' => (is => 'ro', default => sub { [] });
-has '_buffer_count' => (is => 'rw', default => 0);
+has '_buffer' => (is => 'ro', init_arg => undef, default => sub { [] });
+has '_buffer_count' => (is => 'rw', init_arg => undef, default => 0);
 
 sub add_action ($self, %args) {
     my $buffer    = $self->_buffer;
