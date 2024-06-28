@@ -414,7 +414,7 @@ sub flush ($self) {
     return unless $self->_buffer_count;
     my $res = $self->os->document->bulk(
         index => $self->index_name,
-        _body => $self->_buffer,
+        docs  => $self->_buffer,
     );
     $self->clear_buffer;
     $self->report($res->data)
