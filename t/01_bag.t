@@ -3,12 +3,26 @@ use warnings;
 use Test::More;
 use Test::Exception;
 use Catmandu;
+use Catmandu::Sane;
 use Catmandu::Util qw(:is);
 use File::Basename;
 use File::Spec;
 
 plan skip_all => 'To test Modules, set OS_HOST, OS_USER, OS_PASS, OS_INDEX in ENV'
   unless is_string($ENV{OS_HOST}) && exists($ENV{OS_USER}) && exists($ENV{OS_PASS}) && is_string($ENV{OS_INDEX});
+
+sub gen_records {
+  my ($size, $cb) = @_;
+  state $types = [qw(book journal)];
+  for (my $i = 0;$i < $size; $i++) {
+    $cb->(+{
+      _id   => sprintf("%09d", $i +1),
+      title => "Title $i",
+      year  => int(rand() * 2024),
+      type  => $types->[int(rand()*scalar(@$types))]
+    });
+  }
+}
 
 my $this_dir = dirname(__FILE__);
 Catmandu->load($this_dir);
@@ -38,13 +52,14 @@ for (qw(Catmandu::Bag Catmandu::Droppable Catmandu::Flushable Catmandu::CQLSearc
   ok($bag->does($_), "implements $_");
 }
 
-# Bag
+# Bag functionality
 lives_ok(sub {
   $bag->delete_all;
   $bag->commit;
 }, 'clear index on start');
 
-my $records = Catmandu->importer('YAML', file => File::Spec->catfile($this_dir, 'data', 'publications.yml'))->to_array;
+my $records = [];
+gen_records(10, sub { push @$records, shift; });
 $records    = [sort { $a->{_id} <=> $b->{_id} } @$records];
 
 lives_ok(sub {
@@ -94,11 +109,12 @@ lives_ok(sub {
 
 is($bag->count, 0, 'deletions applied after commit');
 
-# Searcher
-$records = Catmandu->importer('YAML', file => File::Spec->catfile($this_dir, 'data', 'publications.yml'))->to_array;
-$records    = [sort { $a->{_id} <=> $b->{_id} } @$records];
+# Searcher functionality
+my $count_records = 100;
 lives_ok(sub {
-  $bag->add_many($records);
+  gen_records($count_records, sub {
+    $bag->add(shift);
+  });
   $bag->commit;
 });
 
@@ -109,12 +125,11 @@ lives_ok(sub {
 
 isa_ok($searcher, 'Catmandu::Store::OpenSearch::Searcher');
 
-is($searcher->count, scalar(@$records));
+is($searcher->count, $count_records);
 
-is($searcher->slice(1)->count, scalar(@$records) - 1);
-is($searcher->slice(2)->count, scalar(@$records) - 2);
+is($searcher->slice(1)->count, $count_records - 1);
+is($searcher->slice(2)->count, $count_records - 2);
 is($searcher->slice(0, 2)->count, 2);
-is($searcher->slice(0, 1)->count, 1);
-
+is($searcher->slice(0, 2000)->count, $count_records);
 
 done_testing;
