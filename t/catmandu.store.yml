@@ -48,14 +48,3 @@ search:
                             exact: {type: keyword, normalizer: tag}
                         type: {type: keyword}
                         year: {type: date, format: 8year, copy_to: all}
-
-                            op:
-                                '>': true
-                                '<': true
-                                '>=': true
-                                '<=': true
-                                'within': true
-                                '=': true
-                                'exact': true
-                                '<>': true
-                                'any': true
