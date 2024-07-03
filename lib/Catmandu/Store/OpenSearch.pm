@@ -378,6 +378,10 @@ L<Catmandu::Store>
 
 =back
 
+=head1 IMPORTANT
+
+This module is still a work in progress, and needs further testing using it in a production system
+
 =head1 LICENSE AND COPYRIGHT
 
 This program is free software; you can redistribute it and/or modify it
