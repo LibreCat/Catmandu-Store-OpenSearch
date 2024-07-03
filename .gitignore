@@ -14,3 +14,5 @@ local
 Catmandu-Store-OpenSearch-*
 cpanfile.snapshot
 .tidyall.d
+/env.sh
+/.perl-version
