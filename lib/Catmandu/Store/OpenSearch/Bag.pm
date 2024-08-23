@@ -35,7 +35,7 @@ sub BUILD {
 sub create_index ($self) {
     my $index_api = $self->store->os->index;
     my $res       = $index_api->exists(index => $self->index);
-    use Data::Dumper;say Dumper($res);
+
     if ($res->code() eq "200") {
         # all ok
     } elsif ($res->code eq "404") {
