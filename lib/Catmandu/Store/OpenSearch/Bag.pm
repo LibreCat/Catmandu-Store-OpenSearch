@@ -118,7 +118,7 @@ sub generator ($self) {
     sub {
         state $search_after;
         state $docs = [];
-        state $batch_size = $self->default_limit;
+        state $batch_size = $self->buffer_size;
 
         unless (scalar(@$docs)) {
             my %args = (
