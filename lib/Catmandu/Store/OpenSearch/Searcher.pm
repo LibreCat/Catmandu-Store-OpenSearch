@@ -41,7 +41,7 @@ sub generator ($self) {
             my %args = (
                 index => $bag->index,
                 query => $self->query,
-                size  => $self->limit,
+                size  => $bag->buffer_size,
                 sort  => $self->sort,
                 track_total_hits => "false",
             );
