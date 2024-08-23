@@ -43,7 +43,7 @@ sub generator ($self) {
                 query => $self->query,
                 size  => $self->limit,
                 sort  => $self->sort,
-                track_total_hits => "true",
+                track_total_hits => "false",
             );
             if ($search_after) {
                 $args{search_after} = $search_after;
@@ -54,7 +54,6 @@ sub generator ($self) {
             if ($res->code ne "200") {
                 Catmandu::Error->throw(encode_json($res->error));
             }
-            return unless $res->data->{hits}{total}{value};
 
             $docs     = $res->data->{hits}{hits};
             return unless scalar(@$docs);
